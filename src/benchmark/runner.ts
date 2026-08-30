@@ -36,6 +36,14 @@ export async function runBenchmark(options: BenchmarkOptions) {
     console.log(pc.dim('Executing Baseline, Regressions (REG-1 to REG-6), and Controls (CTRL-A to CTRL-D)...\n'));
   }
 
+  // Ensure fixture dependencies are installed
+  const fixtureNodeModules = path.join(fixtureDir, 'node_modules');
+  const nodeModulesExist = await fs.stat(fixtureNodeModules).then(() => true).catch(() => false);
+  if (!nodeModulesExist) {
+    if (!jsonOutput) console.log(pc.dim('  Installing fixture dependencies (npm install)...'));
+    await execAsync('npm install', { cwd: fixtureDir, timeout: 60000 });
+  }
+
   const { stdout, stderr } = await execAsync('npx tsx scripts/run-experiment.ts', {
     cwd: fixtureDir,
     timeout: 120000,
