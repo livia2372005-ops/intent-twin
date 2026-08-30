@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-green.svg)](https://nodejs.org)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/intenttwin/intent-twin)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/livia2372005-ops/intent-twin)
 
 IntentTwin is an open-source, local-first **Product Contract and drift verification layer** for software teams working with AI coding agents (Antigravity, Claude Code, Cursor, Codex).
 
@@ -143,7 +143,7 @@ We evaluated IntentTwin v0.1 against a multi-tenant SaaS application fixture (`d
 To reproduce the benchmark locally:
 
 ```bash
-git clone https://github.com/intenttwin/intent-twin.git
+git clone https://github.com/livia2372005-ops/intent-twin.git
 cd intent-twin
 npm install
 npm run build
