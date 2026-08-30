@@ -31,15 +31,13 @@ When AI coding agents refactor code, fix bugs, or add features, standard unit te
 | **Target of Assertion** | Functions, classes, mocked APIs | End-to-end product promises & invariants |
 | **Drift Awareness** | Runs all tests or manually targeted suites | **Inspects Git diffs** and verifies only affected product requirements |
 | **Result Semantics** | Binary `PASS` / `FAIL` | **`PASS`**, **`FAIL`**, and **`UNKNOWN`** (never falsely passes on down servers) |
-| **Inference (Reverse-Spec)** | Hand-crafted from scratch | Reverse-engineers candidate requirements from existing code (`intent-twin infer`) |
+| **Inference (Reverse-Spec)** | Hand-crafted from scratch | Reverse-engineers candidate requirements from existing code (`npx intent-twin infer`) |
 
 ---
 
 ## 3. Quickstart (Under 2 Minutes)
 
-### Prerequisites
-* Node.js >= 18.0.0
-* Git repository
+Zero installation required. Run directly in any Node.js project:
 
 ### Step 1: Initialize IntentTwin
 Inside your project directory:
@@ -87,7 +85,7 @@ IntentTwin compares current Git changes against requirement sources and verifies
 
 ## 4. What Does the Output Look Like?
 
-### `intent-twin verify`
+### `npx intent-twin verify`
 ```text
 [IntentTwin] Verification Summary — docupay-saas
 Timestamp: 2026-08-30T07:26:58.069Z | Commit: f05e4c6
@@ -104,7 +102,7 @@ Results: 6 PASS  0 FAIL  0 UNKNOWN
 Evidence saved to: .intent/evidence/run-2026-08-30T07-26-47
 ```
 
-### `intent-twin drift` (When an AI introduces a regression)
+### `npx intent-twin drift` (When an AI introduces a regression)
 ```text
 [IntentTwin] Product Drift Report
 Base Commit: f05e4c6 → Current: f05e4c6 (working tree)
@@ -157,9 +155,19 @@ invariants:
 
 ---
 
-## 6. Reproducing the Benchmark (EXP-001)
+## 6. Empirical Evaluation (EXP-001)
 
-To independently reproduce the formal Product Drift Evaluation:
+We evaluated IntentTwin v0.1 against a multi-tenant SaaS application fixture (`docupay-saas`) with 6 injected regressions and 4 negative controls.
+
+> **Important Note:** These results represent empirical observations measured on the experimental fixture, not universal guarantees for arbitrary codebases.
+
+### Observed Experiment Results:
+* **Direct Regression Recall:** **5/5 (100.0%)** direct regressions detected via targeted drift (IDOR, Concurrency Race, Role Permission, Soft-Delete Billing, and Float Precision).
+* **Indirect Regression Recall:** **0/1 (0.0%)** detected by targeted drift when modifying an unmapped transitive file (`src/utils/format.ts`). *(Documented v0.1 boundary)*
+* **Unit Test Escape Rate:** **5/6 (83.3%)** regressions completely escaped the fixture's standard unit test suite.
+* **False Positive Rate:** **0/4 (0.0%)** false alarms across negative controls (documentation change, behavior-preserving refactor, infrastructure outage, contract amendment).
+
+To reproduce the benchmark locally:
 
 ```bash
 git clone https://github.com/intenttwin/intent-twin.git
@@ -169,20 +177,16 @@ npm run build
 node bin/intent-twin.js benchmark
 ```
 
-### Observed Experiment Results (EXP-001 on Multi-Tenant SaaS Fixture):
-* **Direct Regression Recall:** `100.0%` (5/5 direct regressions detected via targeted drift)
-* **Indirect Regression Recall:** `0.0%` (0/1 detected when modifying unmapped transitive files; known v0.1 boundary)
-* **Unit Test Escape Rate:** `83.3%` (5 of 6 true regressions completely escaped the standard unit test suite)
-* **False Positive Rate:** `0.0%` (0/4 false alarms across negative controls A–D)
-* **Lift:** 5 additional real-world regressions detected beyond unit tests
-
 ---
 
-## 7. Current Limitations (v0.1)
+## 7. Prominent Known Limitations (v0.1)
 
-1. **Transitive File Matching:** Targeted `drift` matches files explicitly listed in requirement `sources`. Modifying an unmapped transitive helper file requires running full `intent-twin verify`.
-2. **Deterministic & Playwright Probes:** Probes execute HTTP requests, regexes, CLI scripts, and Playwright browsers. Autonomous dynamic crawling is not yet included.
-3. **Local Dev Server:** Services must be running or probe scripts must spawn ephemeral test servers.
+1. **Indirect Dependency Blind Spot (Unmapped Transitive Files):**
+   Targeted `drift` matches files explicitly listed in requirement `sources`. If a requirement watches `src/routes/invoices.ts` and an unmapped utility `src/utils/format.ts` is changed, targeted `drift` will skip that requirement. In CI/CD pipelines, run full `npx intent-twin verify` on main/pull requests.
+2. **Deterministic & Playwright Probe Scope:**
+   Probes execute deterministic CLI commands, regexes, HTTP checks, and headless Playwright browser scripts. Dynamic autonomous crawling and screenshot visual diffing are not part of v0.1.
+3. **Ephemeral Test Servers:**
+   HTTP probes require either a running local development server or probe scripts that spin up ephemeral test listeners.
 
 ---
 
