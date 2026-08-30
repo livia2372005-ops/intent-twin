@@ -1,0 +1,49 @@
+{
+  "name": "intent-twin",
+  "version": "0.1.0",
+  "description": "Open-source, local-first Product Contract and verification layer for AI coding agents",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "intent-twin": "./bin/intent-twin.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "product-contract",
+    "ai-agents",
+    "verification",
+    "drift-detection",
+    "testing",
+    "antigravity",
+    "claude-code",
+    "cursor"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "minimatch": "^9.0.5",
+    "picocolors": "^1.0.1",
+    "playwright": "^1.46.0",
+    "simple-git": "^3.25.0",
+    "yaml": "^2.5.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.4"
+  }
+}

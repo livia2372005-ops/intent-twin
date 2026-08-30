@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.intent/evidence/
+.intent/drift/
+scratch_validation/

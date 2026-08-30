@@ -1,0 +1,67 @@
+version: "0.1"
+product:
+  name: "intent-twin"
+  description: "Open-source, local-first Product Contract and verification layer for AI coding agents"
+
+requirements:
+  - id: "R-001"
+    title: "Workspace Initialization & Agent Integrations"
+    statement: "Running init scaffolds .intent/product.yaml and workspace agent instruction files without overwriting unless forced"
+    critical: true
+    sources:
+      - "src/integrations/agent-files.ts"
+      - "src/cli.ts"
+    probes:
+      - type: "exec"
+        command: "npx vitest run test/e2e.test.ts -t \"Step 1\""
+
+  - id: "R-002"
+    title: "Non-Destructive Spec Genesis Inference"
+    statement: "Running infer proposes candidate requirements at .intent/product.inferred.yaml by default without mutating .intent/product.yaml"
+    critical: true
+    sources:
+      - "src/infer/genesis.ts"
+    probes:
+      - type: "exec"
+        command: "npx vitest run test/infer.test.ts"
+
+  - id: "R-003"
+    title: "Strict Verification Semantics (PASS / FAIL / UNKNOWN)"
+    statement: "Verification strictly evaluates probe assertions to FAIL, passing probes to PASS, and unreached infrastructure or missing probes to UNKNOWN"
+    critical: true
+    sources:
+      - "src/engine/runner.ts"
+      - "src/engine/layer-a-deterministic.ts"
+    probes:
+      - type: "exec"
+        command: "npx vitest run test/deterministic.test.ts"
+
+  - id: "R-004"
+    title: "Targeted Git Drift Detection"
+    statement: "Drift analysis inspects git diff, maps changed files to requirement sources, and isolates regressions"
+    critical: true
+    sources:
+      - "src/drift/detector.ts"
+      - "src/drift/git.ts"
+    probes:
+      - type: "exec"
+        command: "npx vitest run test/drift.test.ts"
+
+  - id: "R-005"
+    title: "Runtime Metadata Git Isolation"
+    statement: "Self-generated evidence directories (.intent/evidence/ and .intent/drift/) must be filtered from git diff changed files"
+    critical: true
+    sources:
+      - "src/drift/git.ts"
+    probes:
+      - type: "exec"
+        command: "npx vitest run test/drift.test.ts -t \"filters out\""
+
+invariants:
+  - id: "I-001"
+    statement: "Unreachable infrastructure or missing probes must never be converted to PASS"
+    sources:
+      - "src/engine/runner.ts"
+    probes:
+      - type: "exec"
+        command: "npx vitest run test/deterministic.test.ts -t \"returns UNKNOWN\""
