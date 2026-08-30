@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { exec } from 'node:child_process';
@@ -26,6 +26,13 @@ async function runCli(cmd: string, cwd: string) {
 }
 
 describe('Real-User OSS Smoke Test (Clean App Flow)', () => {
+  beforeAll(async () => {
+    const distCli = path.resolve(repoRoot, 'dist/cli.js');
+    const exists = await fs.stat(distCli).catch(() => false);
+    if (!exists) {
+      await execAsync('npm run build', { cwd: repoRoot });
+    }
+  });
   beforeEach(async () => {
     await fs.rm(smokeAppDir, { recursive: true, force: true });
     await fs.mkdir(smokeAppDir, { recursive: true });
