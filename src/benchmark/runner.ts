@@ -2,6 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
 import pc from 'picocolors';
 
 const execAsync = promisify(exec);
@@ -13,13 +14,20 @@ export interface BenchmarkOptions {
 
 export async function runBenchmark(options: BenchmarkOptions) {
   const { workspaceRoot, jsonOutput } = options;
-  const fixtureDir = path.resolve(workspaceRoot, 'fixtures/saas-platform');
-  const runnerScript = path.resolve(fixtureDir, 'scripts/run-experiment.ts');
+  const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+  
+  let fixtureDir = path.resolve(workspaceRoot, 'fixtures/saas-platform');
+  let runnerScript = path.resolve(fixtureDir, 'scripts/run-experiment.ts');
 
-  // Verify fixture exists
-  const fixtureExists = await fs.stat(runnerScript).then(() => true).catch(() => false);
+  let fixtureExists = await fs.stat(runnerScript).then(() => true).catch(() => false);
   if (!fixtureExists) {
-    throw new Error(`Benchmark fixture not found at: ${fixtureDir}`);
+    fixtureDir = path.resolve(packageRoot, 'fixtures/saas-platform');
+    runnerScript = path.resolve(fixtureDir, 'scripts/run-experiment.ts');
+    fixtureExists = await fs.stat(runnerScript).then(() => true).catch(() => false);
+  }
+
+  if (!fixtureExists) {
+    throw new Error(`Benchmark fixture not found. To run EXP-001, clone the IntentTwin repository and run: intent-twin benchmark`);
   }
 
   if (!jsonOutput) {

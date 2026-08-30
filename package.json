@@ -19,6 +19,13 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/intenttwin/intent-twin.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "keywords": [
     "product-contract",
     "ai-agents",
@@ -29,7 +36,6 @@
     "claude-code",
     "cursor"
   ],
-  "author": "",
   "license": "MIT",
   "dependencies": {
     "commander": "^12.1.0",
