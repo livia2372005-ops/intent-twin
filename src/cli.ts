@@ -241,4 +241,23 @@ program
     }
   });
 
+// 5. benchmark
+program
+  .command('benchmark')
+  .description('Run local product drift regression benchmark (EXP-001) and output summary')
+  .option('--json', 'Output raw benchmark results formatted as JSON', false)
+  .action(async (options) => {
+    const cwd = process.cwd();
+    try {
+      const { runBenchmark } = await import('./benchmark/runner.js');
+      await runBenchmark({
+        workspaceRoot: cwd,
+        jsonOutput: options.json,
+      });
+    } catch (err: any) {
+      console.error(pc.red(`\n✗ Benchmark execution failed: ${err.message}\n`));
+      process.exit(1);
+    }
+  });
+
 program.parse();

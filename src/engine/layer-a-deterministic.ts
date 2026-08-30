@@ -44,29 +44,14 @@ export async function runFileProbe(probe: FileProbe, workspaceRoot: string): Pro
       }
 
       const content = await fs.readFile(targetPath, 'utf8');
-
-      if (probe.pattern) {
-        const regex = new RegExp(probe.pattern);
-        if (!regex.test(content)) {
-          return {
-            probe,
-            status: 'FAIL',
-            durationMs: Date.now() - startTime,
-            message: `File ${probe.path} does not match required pattern: /${probe.pattern}/`,
-          };
-        }
-      }
-
-      if (probe.notPattern) {
-        const notRegex = new RegExp(probe.notPattern);
-        if (notRegex.test(content)) {
-          return {
-            probe,
-            status: 'FAIL',
-            durationMs: Date.now() - startTime,
-            message: `File ${probe.path} contains forbidden pattern: /${probe.notPattern}/`,
-          };
-        }
+      const patternResult = testContentPatterns(content, probe.path, probe.pattern, probe.notPattern);
+      if (!patternResult.success) {
+        return {
+          probe,
+          status: 'FAIL',
+          durationMs: Date.now() - startTime,
+          message: patternResult.message!,
+        };
       }
     }
 
@@ -125,6 +110,35 @@ async function searchDirectory(dir: string, pattern?: string, notPattern?: strin
   if (pattern) {
     return { success: false, message: `Pattern /${pattern}/ not found in any file under directory` };
   }
+  return { success: true };
+}
+
+function testContentPatterns(
+  content: string,
+  filePath: string,
+  pattern?: string,
+  notPattern?: string
+): { success: boolean; message?: string } {
+  if (pattern) {
+    const regex = new RegExp(pattern);
+    if (!regex.test(content)) {
+      return {
+        success: false,
+        message: `File ${filePath} does not match required pattern: /${pattern}/`,
+      };
+    }
+  }
+
+  if (notPattern) {
+    const notRegex = new RegExp(notPattern);
+    if (notRegex.test(content)) {
+      return {
+        success: false,
+        message: `File ${filePath} contains forbidden pattern: /${notPattern}/`,
+      };
+    }
+  }
+
   return { success: true };
 }
 

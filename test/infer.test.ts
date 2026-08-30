@@ -29,7 +29,7 @@ describe('Spec Genesis / Inference (Non-destructive by default)', () => {
   });
 
   it('generates proposal at .intent/product.inferred.yaml by default without mutating main contract', async () => {
-    const result = await inferProductContract({ workspaceRoot: tmpDir, apply: false });
+    const result = await inferProductContract({ workspaceRoot: tmpDir });
 
     expect(result.isApplied).toBe(false);
     expect(result.contract.product.name).toBe('my-infer-app');
