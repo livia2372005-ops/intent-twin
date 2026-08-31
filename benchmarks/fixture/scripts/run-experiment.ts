@@ -295,7 +295,9 @@ async function main() {
   console.log(`• Incremental Defect Detection Lift:       ${incrementalRegressionsCaught} additional regressions caught beyond unit tests`);
 
   // Write results JSON
-  const outputPath = path.resolve(repoRoot, 'docs/superpowers/specs/2026-08-30-experiment-results.json');
+  const resultsDir = path.resolve(repoRoot, 'benchmarks/results');
+  await fs.mkdir(resultsDir, { recursive: true });
+  const outputPath = path.join(resultsDir, 'EXP-001-latest.json');
   await fs.writeFile(outputPath, JSON.stringify({ results, metrics: { recallDirect, recallIndirect, escapeRate, fpr, incrementalRegressionsCaught } }, null, 2), 'utf8');
   console.log(`\nDetailed experiment data saved to: ${outputPath}\n`);
 }

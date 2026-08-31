@@ -16,12 +16,12 @@ export async function runBenchmark(options: BenchmarkOptions) {
   const { workspaceRoot, jsonOutput } = options;
   const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   
-  let fixtureDir = path.resolve(workspaceRoot, 'fixtures/saas-platform');
+  let fixtureDir = path.resolve(workspaceRoot, 'benchmarks/fixture');
   let runnerScript = path.resolve(fixtureDir, 'scripts/run-experiment.ts');
 
   let fixtureExists = await fs.stat(runnerScript).then(() => true).catch(() => false);
   if (!fixtureExists) {
-    fixtureDir = path.resolve(packageRoot, 'fixtures/saas-platform');
+    fixtureDir = path.resolve(packageRoot, 'benchmarks/fixture');
     runnerScript = path.resolve(fixtureDir, 'scripts/run-experiment.ts');
     fixtureExists = await fs.stat(runnerScript).then(() => true).catch(() => false);
   }
@@ -50,15 +50,9 @@ export async function runBenchmark(options: BenchmarkOptions) {
   });
 
   // Load generated raw results JSON
-  const rawResultsPath = path.resolve(workspaceRoot, 'docs/superpowers/specs/2026-08-30-experiment-results.json');
-  const rawData = await fs.readFile(rawResultsPath, 'utf8');
+  const benchmarkLatestPath = path.resolve(workspaceRoot, 'benchmarks/results/EXP-001-latest.json');
+  const rawData = await fs.readFile(benchmarkLatestPath, 'utf8');
   const parsedData = JSON.parse(rawData);
-
-  // Store in benchmarks/results/EXP-001-latest.json
-  const benchmarkResultsDir = path.resolve(workspaceRoot, 'benchmarks/results');
-  await fs.mkdir(benchmarkResultsDir, { recursive: true });
-  const benchmarkLatestPath = path.join(benchmarkResultsDir, 'EXP-001-latest.json');
-  await fs.writeFile(benchmarkLatestPath, JSON.stringify(parsedData, null, 2), 'utf8');
 
   if (jsonOutput) {
     console.log(JSON.stringify(parsedData, null, 2));
