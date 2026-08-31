@@ -10,4 +10,3 @@ export * from './drift/state.js';
 export * from './infer/genesis.js';
 export * from './evidence/collector.js';
 export * from './integrations/agent-files.js';
-export * from './benchmark/runner.js';
