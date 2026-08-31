@@ -4,3 +4,6 @@ dist/
 .intent/drift/
 benchmarks/results/
 scratch_validation/
+.env
+.env.*
+.npmrc
