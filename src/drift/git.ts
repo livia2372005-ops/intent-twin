@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { simpleGit, SimpleGit } from 'simple-git';
 
 export interface GitChangeSummary {
@@ -31,6 +32,18 @@ export async function getGitChanges(
   const changedSet = new Set<string>();
 
   try {
+    const topLevel = (await git.revparse(['--show-toplevel'])).trim();
+
+    const addFile = (file: string) => {
+      const absPath = path.resolve(topLevel, file.trim());
+      const relPath = path.relative(workspaceRoot, absPath).replace(/\\/g, '/');
+      if (!relPath.startsWith('..') && !path.isAbsolute(relPath)) {
+        changedSet.add(relPath);
+      } else {
+        changedSet.add(file.trim().replace(/\\/g, '/'));
+      }
+    };
+
     // 1. If baseCommit is given, diff against baseCommit
     if (baseCommit && currentCommit && baseCommit !== currentCommit) {
       const diffOutput = await git.diff(['--name-only', baseCommit]);
@@ -38,13 +51,13 @@ export async function getGitChanges(
         .split('\n')
         .map(f => f.trim())
         .filter(Boolean)
-        .forEach(f => changedSet.add(f.replace(/\\/g, '/')));
+        .forEach(addFile);
     }
 
     // 2. Diff against HEAD (staged and unstaged working tree changes)
     const status = await git.status();
     for (const file of status.files) {
-      changedSet.add(file.path.replace(/\\/g, '/'));
+      addFile(file.path);
     }
   } catch {
     // Fallback if diff fails

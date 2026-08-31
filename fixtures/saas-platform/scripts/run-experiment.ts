@@ -285,16 +285,18 @@ async function main() {
   const fpControls = controls.filter(r => r.intentTwinDriftDetected).length;
   const fpr = (fpControls / controls.length) * 100;
 
+  const incrementalRegressionsCaught = results.filter(r => r.oracleTrueDefectDetected && r.unitTestPassed && r.intentTwinDriftDetected).length;
+
   console.log('\n--- COMPUTED SCIENTIFIC METRICS ---');
   console.log(`• Direct Regression Recall (R_direct):     ${recallDirect.toFixed(1)}% (${tpDirect}/${directRegs.length})`);
   console.log(`• Indirect Regression Recall (R_indirect): ${recallIndirect.toFixed(1)}% (${tpIndirect}/${indirectRegs.length}) [Documented MVP boundary]`);
   console.log(`• Unit Test Defect Escape Rate (E):        ${escapeRate.toFixed(1)}% (${unitTestEscaped}/${totalTrueRegs})`);
   console.log(`• False Positive Rate (FPR):               ${fpr.toFixed(1)}% (${fpControls}/${controls.length})`);
-  console.log(`• Differential Detection Lift (ΔL):        +${(recallDirect - (100 - escapeRate)).toFixed(1)}% over unit tests`);
+  console.log(`• Incremental Defect Detection Lift:       ${incrementalRegressionsCaught} additional regressions caught beyond unit tests`);
 
   // Write results JSON
   const outputPath = path.resolve(repoRoot, 'docs/superpowers/specs/2026-08-30-experiment-results.json');
-  await fs.writeFile(outputPath, JSON.stringify({ results, metrics: { recallDirect, recallIndirect, escapeRate, fpr } }, null, 2), 'utf8');
+  await fs.writeFile(outputPath, JSON.stringify({ results, metrics: { recallDirect, recallIndirect, escapeRate, fpr, incrementalRegressionsCaught } }, null, 2), 'utf8');
   console.log(`\nDetailed experiment data saved to: ${outputPath}\n`);
 }
 

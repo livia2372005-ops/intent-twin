@@ -33,6 +33,7 @@ describe('Real-User OSS Smoke Test (Clean App Flow)', () => {
       await execAsync('npm run build', { cwd: repoRoot });
     }
   });
+
   beforeEach(async () => {
     await fs.rm(smokeAppDir, { recursive: true, force: true });
     await fs.mkdir(smokeAppDir, { recursive: true });

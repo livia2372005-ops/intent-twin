@@ -79,33 +79,12 @@
       "intentTwinStatus": "STABLE (0 Drift)",
       "oracleTrueDefectDetected": false,
       "details": "Code refactored with map/reduce; product contract passed completely"
-    },
-    {
-      "id": "CTRL-C",
-      "name": "Infrastructure Outage (Unreachable Port)",
-      "category": "control",
-      "unitTestPassed": true,
-      "intentTwinDriftDetected": false,
-      "intentTwinStatus": "UNKNOWN (Strict Fallback)",
-      "oracleTrueDefectDetected": false,
-      "details": "Correct: Network unreachable evaluated strictly as UNKNOWN, zero false PASS/FAIL"
-    },
-    {
-      "id": "CTRL-D",
-      "name": "Contract Amendment (No Code Regression)",
-      "category": "control",
-      "unitTestPassed": true,
-      "intentTwinDriftDetected": false,
-      "intentTwinStatus": "STABLE (0 Drift)",
-      "oracleTrueDefectDetected": false,
-      "details": "Contract amended for future feature; existing code correctly evaluated as STABLE"
     }
   ],
   "metrics": {
     "recallDirect": 100,
     "recallIndirect": 0,
     "escapeRate": 83.33333333333334,
-    "fpr": 0,
-    "incrementalRegressionsCaught": 5
+    "fpr": 0
   }
 }

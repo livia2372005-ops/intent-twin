@@ -36,7 +36,7 @@ export async function runBenchmark(options: BenchmarkOptions) {
     console.log(pc.dim('Executing Baseline, Regressions (REG-1 to REG-6), and Controls (CTRL-A to CTRL-D)...\n'));
   }
 
-  // Ensure fixture dependencies are installed
+  // Ensure fixture dependencies are installed on fresh clones
   const fixtureNodeModules = path.join(fixtureDir, 'node_modules');
   const nodeModulesExist = await fs.stat(fixtureNodeModules).then(() => true).catch(() => false);
   if (!nodeModulesExist) {
