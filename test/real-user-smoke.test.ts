@@ -158,4 +158,48 @@ requirements:
     expect(fixedDriftRes.success).toBe(true);
     expect(fixedDriftRes.stdout).toContain('No affected requirements found');
   });
+
+  it('verifies minimal user workspace footprint and lazy runtime artifact creation', async () => {
+    // 1. Run init in clean app
+    const initRes = await runCli(`node "${intentTwinBin}" init`, smokeAppDir);
+    expect(initRes.success).toBe(true);
+
+    // 2. Assert that only expected integration files were created
+    expect(await fs.stat(path.join(smokeAppDir, '.intent/product.yaml'))).toBeDefined();
+    expect(await fs.stat(path.join(smokeAppDir, 'AGENTS.md'))).toBeDefined();
+    expect(await fs.stat(path.join(smokeAppDir, 'CLAUDE.md'))).toBeDefined();
+    expect(await fs.stat(path.join(smokeAppDir, '.agents/skills/intent-twin/SKILL.md'))).toBeDefined();
+    expect(await fs.stat(path.join(smokeAppDir, '.cursor/rules/intent-twin.mdc'))).toBeDefined();
+    expect(await fs.stat(path.join(smokeAppDir, '.gitignore'))).toBeDefined();
+
+    // 3. Assert lazy runtime creation: evidence and drift directories must NOT exist yet
+    const evidenceExists = await fs.stat(path.join(smokeAppDir, '.intent/evidence')).catch(() => false);
+    const driftExists = await fs.stat(path.join(smokeAppDir, '.intent/drift')).catch(() => false);
+    expect(evidenceExists).toBe(false);
+    expect(driftExists).toBe(false);
+
+    // 4. Assert that no IntentTwin source, test, benchmark, or internal package files were copied
+    const srcCliExists = await fs.stat(path.join(smokeAppDir, 'src/cli.ts')).catch(() => false);
+    const benchmarksExists = await fs.stat(path.join(smokeAppDir, 'benchmarks')).catch(() => false);
+    const docsExists = await fs.stat(path.join(smokeAppDir, 'docs')).catch(() => false);
+    const tsupExists = await fs.stat(path.join(smokeAppDir, 'tsup.config.ts')).catch(() => false);
+    const vitestExists = await fs.stat(path.join(smokeAppDir, 'vitest.config.ts')).catch(() => false);
+
+    expect(srcCliExists).toBe(false);
+    expect(benchmarksExists).toBe(false);
+    expect(docsExists).toBe(false);
+    expect(tsupExists).toBe(false);
+    expect(vitestExists).toBe(false);
+
+    // 5. User app package.json remains intact and uncorrupted
+    const userPkgRaw = await fs.readFile(path.join(smokeAppDir, 'package.json'), 'utf8');
+    const userPkg = JSON.parse(userPkgRaw);
+    expect(userPkg.name).toBe('acme-portal');
+    expect(userPkg.version).toBe('1.0.0');
+
+    // 6. After running verify, runtime evidence is created lazily
+    await runCli(`node "${intentTwinBin}" verify`, smokeAppDir);
+    const evidenceAfterVerify = await fs.stat(path.join(smokeAppDir, '.intent/evidence')).catch(() => false);
+    expect(evidenceAfterVerify).toBeTruthy();
+  });
 });
